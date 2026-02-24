@@ -54,6 +54,11 @@
     "rules": [
       {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns"]},
       {"inbound": "dns-in", "action": "hijack-dns"},
+      
+      {"rule_set": "geosite-youtube", "protocol": "udp", "port": 443, "action": "reject"},
+      
+      {"protocol": "quic", "action": "reject"},
+
       {"ip_is_private": true, "outbound": "🎯 全球直连"},
       {"clash_mode": "direct", "outbound": "🎯 全球直连"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
