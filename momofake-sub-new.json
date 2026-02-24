@@ -14,8 +14,7 @@
       { "clash_mode": "Direct", "server": "local-dns" },
       { "clash_mode": "Global", "server": "proxy-dns" },
       { "rule_set": "geosite-category-ads-all", "server": "block-dns" },
-      // 这里的逻辑：如果你在模板A里有特定的YouTube规则，确保它们在这里优先走 proxy-dns
-      { "rule_set": ["geosite-youtube", "geosite-google"], "server": "proxy-dns" },
+      { "rule_set": ["geosite-youtube", "geosite-google", "geosite-telegram", "geosite-twitter"], "server": "proxy-dns" },
       { "rule_set": "geosite-cn", "server": "local-dns" }
     ],
     "final": "proxy-dns",
@@ -24,6 +23,7 @@
   "inbounds": [
     {
       "type": "tun",
+      "tag": "tun-in",
       "inet4_address": "172.19.0.1/30",
       "mtu": 1400,
       "auto_route": true,
@@ -36,44 +36,43 @@
   ],
   "outbounds": [
     { "type": "selector", "tag": "proxy", "outbounds": ["{all}"] },
+    { "type": "selector", "tag": "google", "outbounds": ["proxy", "direct"] },
+    { "type": "selector", "tag": "telegram", "outbounds": ["proxy", "direct"] },
+    { "type": "selector", "tag": "twitter", "outbounds": ["proxy", "direct"] },
     { "type": "direct", "tag": "direct" },
     { "type": "dns", "tag": "dns-out" },
-    { "type": "block", "tag": "block" },
-    // 关键：这里是Sub-Store生成节点的地方，通过脚本确保Hy2节点带上带宽
-    { "type": "selector", "tag": "youtube", "outbounds": ["proxy", "direct"] }
+    { "type": "block", "tag": "block" }
   ],
   "route": {
     "rule_set": [
-      {
-        "tag": "geosite-youtube",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-youtube.srs"
-      },
-      {
-        "tag": "geosite-cn",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-cn.srs"
-      }
-      // 此处省略其他从模板A平移过来的 rule_set 定义...
+      { "tag": "geosite-category-ads-all", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-category-ads-all.srs" },
+      { "tag": "geosite-youtube", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-youtube.srs" },
+      { "tag": "geosite-google", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-google.srs" },
+      { "tag": "geosite-telegram", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-telegram.srs" },
+      { "tag": "geosite-twitter", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-twitter.srs" },
+      { "tag": "geosite-cn", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-cn.srs" },
+      { "tag": "geoip-cn", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs" }
     ],
     "rules": [
       { "protocol": "dns", "outbound": "dns-out" },
       { "clash_mode": "Direct", "outbound": "direct" },
       { "clash_mode": "Global", "outbound": "proxy" },
-      { "rule_set": "geosite-youtube", "outbound": "proxy" },
+      { "rule_set": "geosite-category-ads-all", "outbound": "block" },
+      { "rule_set": "geosite-youtube", "outbound": "google" },
+      { "rule_set": "geosite-google", "outbound": "google" },
+      { "rule_set": "geosite-telegram", "outbound": "telegram" },
+      { "rule_set": "geosite-twitter", "outbound": "twitter" },
       { "rule_set": "geosite-cn", "outbound": "direct" },
+      { "rule_set": "geoip-cn", "outbound": "direct" },
       { "ip_is_private": true, "outbound": "direct" }
     ],
     "final": "proxy",
     "auto_detect_interface": true
   },
   "experimental": {
-    "cache_file": { "enabled": true },
+    "cache_file": { "enabled": true, "path": "cache.db" },
     "clash_api": {
       "external_controller": "0.0.0.0:9090",
-      "secret": "",
       "external_ui": "ui",
       "default_mode": "Rule"
     }
