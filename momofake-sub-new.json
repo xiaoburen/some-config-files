@@ -7,6 +7,7 @@
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
     ],
     "rules": [
+      { "domain": ["tw2.dexlos.com", "1sg001.476579.xyz", "testsub.fefacn.dpdns.org"], "server": "local" },
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
       {"query_type": "HTTPS", "action": "reject"},
@@ -52,13 +53,10 @@
   ],
   "route": {
     "rules": [
+      {"rule_set": "geosite-youtube", "protocol": "udp", "port": 443, "action": "reject"},
+      {"protocol": "quic", "action": "reject"},
       {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns"]},
       {"inbound": "dns-in", "action": "hijack-dns"},
-      
-      {"rule_set": "geosite-youtube", "protocol": "udp", "port": 443, "action": "reject"},
-      
-      {"protocol": "quic", "action": "reject"},
-
       {"ip_is_private": true, "outbound": "🎯 全球直连"},
       {"clash_mode": "direct", "outbound": "🎯 全球直连"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
