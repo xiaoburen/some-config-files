@@ -152,7 +152,6 @@
       "path": "/etc/momo/run/cache.db",
       "store_fakeip": true
     },
-    "udp_pacing": true,
     "clash_api": {
       "external_controller": "0.0.0.0:9095",
       "external_ui": "/etc/momo/run/ui",
